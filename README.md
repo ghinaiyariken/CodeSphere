@@ -1,73 +1,23 @@
-# React + TypeScript + Vite
+# CodeSphere - Smart Resume Builder 🚀
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+CodeSphere is an AI-powered resume analyzer and enhancer designed to help candidates optimize their resumes for Applicant Tracking Systems (ATS).
 
-Currently, two official plugins are available:
+## Features
+- **ATS Score Analysis**: Real-time matching against job descriptions.
+- **AI Enhancement**: Automatically injects missing keywords and improves formatting.
+- **Scanning Effect**: High-tech visual feedback during the optimization process.
+- **PDF Export**: Export high-quality, ATS-optimized resumes instantly.
+- **Interactive UI**: Clean, modern dashboard with "Original vs. Enhanced" visualizer.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech Stack
+- **Frontend**: React, TypeScript, Vite, Tailwind CSS, Lucide React.
+- **Backend**: FastAPI (Python), Spacy, NLTK, Scikit-learn.
+- **Export**: html2canvas, jsPDF.
 
-## React Compiler
+## Getting Started
+1. Clone the repository.
+2. Run `npm install` and `npm run dev` for the frontend.
+3. Set up the Python environment in the `backend` folder and run the FastAPI server.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
+*Built with ❤️ for career growth.*
