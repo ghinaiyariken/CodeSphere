@@ -32,8 +32,20 @@ interface ProudOf {
     icon: string;
 }
 
+interface ResumeData {
+    name: string;
+    role: string;
+    contact: { phone: string; email: string; location: string };
+    summary: string;
+    experiences: Experience[];
+    skills: string[];
+    achievements?: Achievement[];
+    proudOf?: ProudOf[];
+    extraInfo: string;
+}
+
 // --- Mock Data (Exact Match for Template Image & Industry Examples) ---
-const TEMPLATE_CONFIGS: Record<string, any> = {
+const TEMPLATE_CONFIGS: Record<string, ResumeData> = {
     '1': {
         name: 'Taylor Foster',
         role: 'Lead Software Engineer',
@@ -223,7 +235,7 @@ const TEMPLATE_CONFIGS: Record<string, any> = {
     }
 };
 
-const IconMap: Record<string, any> = {
+const IconMap: Record<string, React.ElementType> = {
     'Globe': Globe,
     'Heart': Heart,
     'Trophy': Trophy,
@@ -239,7 +251,7 @@ interface EditableTextProps {
     onChange: (val: string) => void;
     className?: string;
     multiline?: boolean;
-    tagName?: keyof JSX.IntrinsicElements;
+    tagName?: React.ElementType;
 }
 
 const EditableText = ({
@@ -254,11 +266,11 @@ const EditableText = ({
             contentEditable
             suppressContentEditableWarning
             className={`outline-none transition-colors rounded px-1 -mx-1 border-b border-transparent hover:bg-blue-50/30 focus:bg-blue-50 focus:border-blue-400/50 ${className}`}
-            onBlur={(e: any) => onChange(e.target.innerText)}
-            onKeyDown={(e: any) => {
+            onBlur={(e: React.FocusEvent<HTMLElement>) => onChange((e.target as HTMLElement).innerText)}
+            onKeyDown={(e: React.KeyboardEvent<HTMLElement>) => {
                 if (!multiline && e.key === 'Enter') {
                     e.preventDefault();
-                    e.target.blur();
+                    (e.target as HTMLElement).blur();
                 }
             }}
         >
@@ -441,7 +453,7 @@ export const ResumeBuilder = ({ onBack, initialTemplate }: { onBack: () => void,
                             <section className="text-left">
                                 <h2 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.25em] mb-6 border-b border-slate-100 pb-2">Professional Experience</h2>
                                 <div className="space-y-10">
-                                    {data.experiences.map((ex: any, idx: number) => (
+                                    {data.experiences.map((ex: Experience, idx: number) => (
                                         <div key={ex.id} className="relative group/exp">
                                             <div className="flex justify-between items-baseline mb-1">
                                                 <EditableText
@@ -504,13 +516,13 @@ export const ResumeBuilder = ({ onBack, initialTemplate }: { onBack: () => void,
                             <section className="text-left">
                                 <h2 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.25em] mb-4 border-b border-slate-100 pb-2">Achievements</h2>
                                 <div className="space-y-6">
-                                    {data.achievements.map((ach: any, aIdx: number) => (
+                                    {data.achievements?.map((ach: Achievement, aIdx: number) => (
                                         <div key={ach.id} className="text-left">
                                             <EditableText
                                                 className="block font-bold text-slate-900 text-[11px] mb-1 leading-tight"
                                                 value={ach.title}
                                                 onChange={(v: string) => {
-                                                    const a = [...data.achievements]; a[aIdx].title = v; setData({ ...data, achievements: a });
+                                                    const a = [...(data.achievements || [])]; a[aIdx].title = v; setData({ ...data, achievements: a });
                                                 }}
                                             />
                                             <EditableText
@@ -518,7 +530,7 @@ export const ResumeBuilder = ({ onBack, initialTemplate }: { onBack: () => void,
                                                 className="text-[10px] text-slate-500 leading-relaxed"
                                                 value={ach.description}
                                                 onChange={(v: string) => {
-                                                    const a = [...data.achievements]; a[aIdx].description = v; setData({ ...data, achievements: a });
+                                                    const a = [...(data.achievements || [])]; a[aIdx].description = v; setData({ ...data, achievements: a });
                                                 }}
                                             />
                                         </div>
@@ -528,7 +540,7 @@ export const ResumeBuilder = ({ onBack, initialTemplate }: { onBack: () => void,
 
                             <section className="text-left">
                                 <h2 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.25em] mb-4 border-b border-slate-100 pb-2">Impact & Proud Of</h2>
-                                {data.proudOf.map((p: any, pIdx: number) => {
+                                {data.proudOf?.map((p: ProudOf, pIdx: number) => {
                                     const IconNode = IconMap[p.icon] || Globe;
                                     return (
                                         <div key={p.id} className="flex gap-3 mb-6 text-left group/item">
@@ -540,7 +552,7 @@ export const ResumeBuilder = ({ onBack, initialTemplate }: { onBack: () => void,
                                                 className="text-[10px] font-bold text-slate-800 leading-tight"
                                                 value={p.text}
                                                 onChange={(v: string) => {
-                                                    const pr = [...data.proudOf]; pr[pIdx].text = v; setData({ ...data, proudOf: pr });
+                                                    const pr = [...(data.proudOf || [])]; pr[pIdx].text = v; setData({ ...data, proudOf: pr });
                                                 }}
                                             />
                                         </div>

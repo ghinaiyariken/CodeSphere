@@ -54,12 +54,13 @@ export const Dashboard = () => {
             } else {
                 throw new Error('Failed to parse results');
             }
-        } catch (err: any) {
+        } catch (err) {
             console.error(err);
-            if (err.message === 'Failed to fetch') {
+            const errorMessage = err instanceof Error ? err.message : "An error occurred during analysis.";
+            if (errorMessage === 'Failed to fetch') {
                 setError("Cannot connect to server. Is the backend running?");
             } else {
-                setError(err.message || "An error occurred during analysis.");
+                setError(errorMessage);
             }
             setStep('upload');
         }

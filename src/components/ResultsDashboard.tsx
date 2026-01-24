@@ -1,9 +1,8 @@
 import { useState, useRef } from 'react';
 import {
     CheckCircle2, XCircle, AlertTriangle,
-    Lightbulb, FileText, Sparkles,
-    Layout, ArrowRight, Target, Trophy,
-    Download, Save, Share2, ScanLine, Loader2
+    Lightbulb, Sparkles,
+    ArrowRight, Trophy
 } from 'lucide-react';
 import { Card } from './Card';
 import { ScoreDial } from './ScoreDial';
