@@ -7,3 +7,5 @@ spacy
 nltk
 scikit-learn
 numpy
+sentence-transformers
+torch

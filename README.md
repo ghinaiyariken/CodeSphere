@@ -16,8 +16,9 @@ CodeSphere is an AI-powered resume analyzer and enhancer designed to help candid
 
 ## Getting Started
 1. Clone the repository.
-2. Run `npm install` and `npm run dev` for the frontend.
-3. Set up the Python environment in the `backend` folder and run the FastAPI server.
+2. **Frontend**: Go to `frontend` folder, run `npm install` and `npm run dev`.
+3. **Backend**: Go to `backend` folder, set up the Python environment and run the FastAPI server.
+4. **Shortcut**: Simply run `run_app.bat` in the root folder to start both at once!
 
 ---
 *Built with ❤️ for career growth.*

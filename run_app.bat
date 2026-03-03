@@ -20,7 +20,7 @@ start "Backend Server" /d "%~dp0" cmd /k "call backend\venv\Scripts\activate && 
 
 echo.
 echo [2/2] Starting Frontend...
-start "Frontend" /d "%~dp0" cmd /k "npm run dev"
+start "Frontend" /d "%~dp0\frontend" cmd /k "npm run dev"
 
 echo.
 echo ===================================================
