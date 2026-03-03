@@ -18,13 +18,43 @@ class EnterpriseScorer:
     def __init__(self):
         self.model = get_model()
 
+    def is_valid_content(self, text: str) -> bool:
+        """Detect garbage or random text"""
+        word_count = len(text.split())
+        if word_count < 30: return False
+        
+        # Check for presence of common characters/patterns
+        has_vowels = len(re.findall(r'[aeiou]', text.lower())) > 10
+        if not has_vowels: return False
+        
+        # Check for common resume keywords or structure
+        from .utils import extract_keywords_util
+        skills = extract_keywords_util(text)
+        
+        # A valid resume should usually have at least 2 clear skills or 1 header or contact info
+        headers = ["experience", "education", "skills", "summary", "projects", "contact"]
+        has_header = any(h in text.lower() for h in headers)
+        has_contact = "@" in text or re.search(r'\d{3}', text)
+        
+        if len(skills) < 2 and not has_header and not has_contact:
+            return False
+            
+        return True
+
     def calculate_semantic_score(self, resume_text: str, jd_text: str) -> float:
         """35% Semantic Matching Score"""
         resume_emb = self.model.encode(resume_text, convert_to_tensor=True)
         jd_emb = self.model.encode(jd_text, convert_to_tensor=True)
         similarity = util.cos_sim(resume_emb, jd_emb)
-        score = float(similarity[0][0]) * 100
-        return max(0, min(100, score))
+        score = float(similarity[0][0])
+        
+        # Stricter mapping: Below 0.3 similarity is basically irrelevant
+        if score < 0.3:
+            return 0.0
+        
+        # Scale 0.3-1.0 to 0-100
+        scaled_score = ((score - 0.3) / 0.7) * 100
+        return max(0, min(100, scaled_score))
 
     def calculate_experience_score(self, parsed_resume: ParsedResume, jd_text: str) -> float:
         """25% Experience Relevance Score"""
@@ -69,7 +99,7 @@ class EnterpriseScorer:
         
         # Ensure we don't have a pure 0 if there is text
         score = (title_match * 0.4) + (duration_score * 0.3) + (proj_score * 0.3)
-        return max(15.0 if parsed_resume.word_count > 50 else 0, score)
+        return score
 
     def calculate_readability_score(self, parsed_resume: ParsedResume) -> float:
         """15% Resume Readability Score"""
@@ -89,7 +119,7 @@ class EnterpriseScorer:
         if parsed_resume.word_count < 100:
             score -= 30
             
-        return max(20.0, score) # Baseline readability
+        return max(0, score)
 
     def calculate_achievement_score(self, text: str) -> float:
         """15% Achievement Impact Score - Quantified Results & Power Verbs"""
@@ -201,7 +231,7 @@ class EnterpriseScorer:
             achievement_score = self.calculate_achievement_score(resume_text)
             skill_density_score = self.calculate_skill_density_score(parsed_resume, jd_text)
             
-            # Weighted Final Score
+            # Final Score Calculation
             final_score = (
                 (semantic_score * 0.35) +
                 (experience_score * 0.25) +
@@ -210,27 +240,40 @@ class EnterpriseScorer:
                 (skill_density_score * 0.10)
             )
             
-            # Ensure it's not exactly 0 if there's any match
-            if final_score < 5 and semantic_score > 0:
-                final_score = 10 + semantic_score * 0.1
-                
+            # Validation: If it's garbage text, force zero
+            is_valid = self.is_valid_content(resume_text)
+            if not is_valid:
+                final_score = 0
+            
+            # Additional check: if similarity is extremely low, it's irrelevant
+            if semantic_score < 10 and skill_density_score < 5:
+                final_score = 0
+
             scores = {
-                "ATSScore": round(min(100, final_score), 2),
-                "SkillMatchScore": round(semantic_score, 2),
-                "ExperienceScore": round(experience_score, 2),
-                "ReadabilityScore": round(readability_score, 2),
-                "AchievementScore": round(achievement_score, 2),
-                "SkillDensityScore": round(skill_density_score, 2),
+                "ATSScore": round(min(100, final_score), 1),
+                "SkillMatchScore": round(semantic_score, 1),
+                "ExperienceScore": round(experience_score, 1),
+                "ReadabilityScore": round(readability_score, 1),
+                "AchievementScore": round(achievement_score, 1),
+                "SkillDensityScore": round(skill_density_score, 1),
                 "matched_keywords": matched,
                 "missing_keywords": missing,
                 "total_keywords": len(jd_keywords)
             }
             
-            suggestions = self.generate_suggestions(scores, parsed_resume, jd_text)
+            # Generate Suggestions
+            if not is_valid:
+                suggestions = ["CRITICAL: The system detected that the uploaded content does not look like a professional resume. Please check your file."]
+            else:
+                suggestions = self.generate_suggestions(scores, parsed_resume, jd_text)
+                if final_score < 20 and final_score > 0:
+                    suggestions.insert(0, "URGENT: This resume has very low alignment with the job description. Consider a major rewrite.")
+                elif final_score == 0:
+                    suggestions = ["NO MATCH: Your resume does not contain any relevant skills or experience for this specific role."]
             
             return {
                 **scores,
-                "Suggestions": suggestions,
+                "Suggestions": suggestions[:4],
                 "parsed_resume": parsed_resume.dict()
             }
         except Exception as e:
