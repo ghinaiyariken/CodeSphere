@@ -57,14 +57,43 @@ def extract_text(file_path: str, content_type: str) -> Optional[str]:
 
 def extract_text_from_pdf(file_path: str) -> str:
     try:
-        # Try pdfminer first
+        # 1. Try standard text extraction first (fastest)
         text = pdfminer.high_level.extract_text(file_path)
-        if text and len(text.strip()) > 0:
+        
+        # If we got substantial text, return it
+        if text and len(text.strip()) > 50:
             return text
         
-        # Fallback if possible (e.g. if pdfminer returned empty)
-        print("DEBUG: pdfminer returned empty, trying alternative...")
-        return ""
+        # 2. Fallback to OCR if text is empty or very short (likely a scanned image/photo)
+        print(f"DEBUG: pdfminer returned '{len(text.strip()) if text else 0}' chars. Attempting OCR fallback...")
+        
+        try:
+            from pdf2image import convert_from_path
+            import pytesseract
+            from PIL import Image
+            
+            # Convert PDF pages to images (300 DPI for high accuracy)
+            images = convert_from_path(file_path, dpi=300)
+            
+            ocr_text = ""
+            for i, image in enumerate(images):
+                print(f"DEBUG: Running OCR on page {i+1}...")
+                page_text = pytesseract.image_to_string(image)
+                ocr_text += page_text + "\n"
+                
+            if ocr_text and len(ocr_text.strip()) > 10:
+                print(f"DEBUG: OCR successfully extracted {len(ocr_text.strip())} characters.")
+                return ocr_text
+            
+            return text or "" # Return whatever we had if OCR also failed
+            
+        except ImportError:
+            print("DEBUG: OCR libraries (pytesseract/pdf2image) not found. Skipping OCR fallback.")
+            return text or ""
+        except Exception as ocr_err:
+            print(f"DEBUG: OCR process failed: {ocr_err}")
+            return text or ""
+            
     except Exception as e:
         print(f"DEBUG: PDF Extraction error: {e}")
         return ""

@@ -9,3 +9,6 @@ scikit-learn
 numpy
 sentence-transformers
 torch
+pytesseract
+pdf2image
+Pillow
