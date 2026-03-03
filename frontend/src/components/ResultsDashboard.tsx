@@ -444,19 +444,31 @@ export const ResultsDashboard = ({ onReset, data }: ResultsDashboardProps) => {
                             <h3 className="text-[10px] font-black text-white uppercase tracking-[0.3em]">AI Suggestions</h3>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {[
-                                { id: 1, text: "Good start: Your profile has potential. Add more industry-specific keywords and quantify achievements.", emoji: "✅" },
-                                { id: 2, text: "Skill Gap: Missing critical keywords: availability, responsibilities, pipelines.", emoji: "💡" },
-                                { id: 3, text: "Content Depth: Your resume is quite short. Professional resumes are typically 400-600 words.", emoji: "📄" },
-                                { id: 4, text: "Format: Ensure you use standard section headers for parsing accuracy.", emoji: "🛠️" }
-                            ].map((item) => (
-                                <div key={item.id} className="flex gap-4 group p-3 rounded-lg bg-white/2 hover:bg-white/5 transition-colors border border-white/5">
-                                    <div className="w-6 h-6 rounded bg-white/5 text-primary flex items-center justify-center shrink-0 font-black text-[10px]">
-                                        {item.id}
+                            {((data?.suggestions?.length ? data.suggestions : [
+                                "Good start: Your profile has potential. Add more industry-specific target keywords and quantify achievements.",
+                                "Analyze the job description strictly and add matching industry skills.",
+                                "Content Depth: Ensure your resume is detailed enough for AI detection.",
+                                "Format: Ensure you use standard section headers for parsing accuracy."
+                            ])).map((suggestion, i) => {
+                                let emoji = "💡";
+                                if (typeof suggestion === "string") {
+                                    if (suggestion.includes("CRITICAL") || suggestion.includes("URGENT")) emoji = "🚨";
+                                    else if (suggestion.includes("IMPACT")) emoji = "📈";
+                                    else if (suggestion.includes("LANGUAGE")) emoji = "✍️";
+                                    else if (suggestion.includes("FORMAT") || suggestion.includes("STRUCTURE")) emoji = "🛠️";
+                                    else if (suggestion.includes("ELITE")) emoji = "🌟";
+                                    else if (suggestion.includes("NO MATCH")) emoji = "❌";
+                                }
+
+                                return (
+                                    <div key={i} className="flex gap-4 group p-3 rounded-lg bg-white/2 hover:bg-white/5 transition-colors border border-white/5">
+                                        <div className="w-6 h-6 rounded bg-white/5 text-primary flex items-center justify-center shrink-0 font-black text-[10px]">
+                                            {i + 1}
+                                        </div>
+                                        <p className="text-[11px] text-slate-400 font-bold leading-relaxed">{emoji} {suggestion.replace(/^(CRITICAL|URGENT|IMPACT|LANGUAGE|FORMAT|STRUCTURE|ELITE|NO MATCH):\s*/, '')}</p>
                                     </div>
-                                    <p className="text-[11px] text-slate-400 font-bold leading-relaxed">{item.emoji} {item.text}</p>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </Card>
                 </div>
